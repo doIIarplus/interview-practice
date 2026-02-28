@@ -81,6 +81,16 @@ These are novel questions tailored to the **Performance Engineer, GPU** role. Th
 - KV-cache management: paged attention, prefix caching, memory budgeting (Q17)
 - GPU cluster scheduling: topology-aware placement, 3D parallelism, fault tolerance (Q18)
 
+### LeetCode Practice (19-21)
+Classic LeetCode problems that align with Anthropic's interview patterns:
+- Web Crawler Multithreaded (LC 1242) — concurrency + BFS (Q19)
+- Find Duplicate File in System (LC 609) — string parsing + optimization (Q20)
+- Exclusive Time of Functions (LC 636) — stack-based tracing (Q21)
+
+## Study Materials
+
+The `study_materials/` folder and `STUDY_GUIDE.md` contain comprehensive prep material. Direct candidates to `STUDY_GUIDE.md` first — it maps topics to questions and suggests a study ordering. The candidate should read these BEFORE attempting the harder questions (especially Q00, Q13-Q18).
+
 ## Interview Format Options
 
 ### Official Performance Take-Home (2-4 hours)
