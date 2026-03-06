@@ -154,95 +154,11 @@ def generate_logits(vocab_size: int = 50000) -> list[float]:
     return logits
 
 
-def test_correctness() -> None:
-    """Basic correctness tests for all sampling methods."""
-    sampler = TokenSampler()
-
-    # Test softmax
-    probs = sampler.softmax([2.0, 1.0, 0.1])
-    assert abs(sum(probs) - 1.0) < 1e-6, f"Softmax doesn't sum to 1: {sum(probs)}"
-    assert probs[0] > probs[1] > probs[2], "Softmax order wrong"
-    print("[PASS] softmax basic")
-
-    # Test softmax numerical stability with large logits
-    probs_large = sampler.softmax([1000.0, 999.0, 998.0])
-    assert abs(sum(probs_large) - 1.0) < 1e-6, "Softmax unstable with large logits"
-    assert probs_large[0] > probs_large[1] > probs_large[2]
-    print("[PASS] softmax numerical stability")
-
-    # Test greedy
-    assert sampler.sample_greedy([1.0, 3.0, 2.0]) == 1
-    assert sampler.sample_greedy([5.0, 1.0, 1.0]) == 0
-    print("[PASS] greedy")
-
-    # Test temperature=0 (should be greedy)
-    for _ in range(10):
-        assert sampler.sample_temperature([1.0, 3.0, 2.0], 0.0) == 1
-    print("[PASS] temperature=0 (greedy)")
-
-    # Test top-k returns only top-k tokens
-    logits = [10.0, 1.0, 1.0, 1.0, 1.0]
-    results = set()
-    for _ in range(100):
-        results.add(sampler.sample_top_k(logits, k=2))
-    assert results.issubset({0, 1}), f"Top-k returned tokens outside top-2: {results}"
-    print("[PASS] top-k filtering")
-
-    # Test top-p with very low p (should mostly return top token)
-    top_results = [sampler.sample_top_p([10.0, 1.0, 1.0], p=0.01) for _ in range(100)]
-    assert top_results.count(0) == 100, "Top-p with p=0.01 should almost always return top token"
-    print("[PASS] top-p with low p")
-
-    # Test min-p filters low probability tokens
-    logits = [10.0, 5.0, -10.0, -10.0, -10.0]
-    results = set()
-    for _ in range(100):
-        results.add(sampler.sample_min_p(logits, min_p=0.01))
-    # Tokens 2-4 should have negligible probability
-    assert results.issubset({0, 1}), f"Min-p didn't filter low prob tokens: {results}"
-    print("[PASS] min-p filtering")
-
-    print("\nAll correctness tests passed!")
-
-
-def benchmark_sampler(vocab_size: int = 50000, n_iterations: int = 1000) -> None:
-    """Benchmark all sampling methods.
-
-    Args:
-        vocab_size: Size of the vocabulary to test with.
-        n_iterations: Number of iterations for timing.
-    """
-    sampler = TokenSampler()
-    logits = generate_logits(vocab_size)
-
-    print(f"\nBenchmark: vocab_size={vocab_size}, iterations={n_iterations}")
-    print("-" * 65)
-
-    methods = [
-        ("greedy", lambda: sampler.sample_greedy(logits)),
-        ("temperature(0.8)", lambda: sampler.sample_temperature(logits, 0.8)),
-        ("top_k(50)", lambda: sampler.sample_top_k(logits, 50)),
-        ("top_p(0.9)", lambda: sampler.sample_top_p(logits, 0.9)),
-        ("min_p(0.05)", lambda: sampler.sample_min_p(logits, 0.05)),
-    ]
-
-    for name, fn in methods:
-        # Warm up
-        for _ in range(10):
-            fn()
-
-        start = time.perf_counter()
-        for _ in range(n_iterations):
-            fn()
-        elapsed = time.perf_counter() - start
-
-        ms_per_call = elapsed / n_iterations * 1000
-        calls_per_sec = n_iterations / elapsed
-        print(f"  {name:25s}: {ms_per_call:8.3f} ms/call  ({calls_per_sec:,.0f} calls/sec)")
-
-    print("-" * 65)
-
-
+# =============================================================================
+# Usage Example
+# =============================================================================
 if __name__ == "__main__":
-    test_correctness()
-    benchmark_sampler()
+    sampler = TokenSampler()
+    logits = [2.0, 1.0, 0.5, -1.0]
+    print(f"Greedy: {sampler.sample_greedy(logits)}")
+    print(f"Softmax: {sampler.softmax(logits)}")

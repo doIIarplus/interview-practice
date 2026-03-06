@@ -235,52 +235,12 @@ def detect_anomalies(
     """
     pass
 
-
-# ---------------------------------------------------------------------------
-# Quick smoke tests
-# ---------------------------------------------------------------------------
-
-
-def _smoke_test():
-    """Run basic smoke tests to verify implementations."""
-    # Test build_trace_tree
-    spans = [
-        Span("s0", None, "api-gateway", "route", 0.0, 55.0),
-        Span("s1", "s0", "auth", "validate_token", 5.0, 15.0),
-        Span("s2", "s0", "model-service", "inference", 15.0, 40.0),
-        Span("s3", "s2", "gpu-worker", "forward_pass", 17.0, 37.0),
-    ]
-
-    root = build_trace_tree(spans)
-    assert root.span.service == "api-gateway"
-    assert len(root.children) == 2
-    print("[PASS] build_trace_tree")
-
-    # Test find_critical_path
-    path = find_critical_path(root)
-    services_on_path = [s.service for s in path]
-    assert services_on_path[0] == "api-gateway"
-    assert "model-service" in services_on_path
-    assert "gpu-worker" in services_on_path
-    print("[PASS] find_critical_path")
-
-    # Test find_bottlenecks
-    traces = generate_sample_traces(200)
-    bottlenecks = find_bottlenecks(traces, threshold_pct=0.1)
-    assert len(bottlenecks) > 0
-    assert all(b["avg_pct_of_total"] > 0.1 for b in bottlenecks)
-    print("[PASS] find_bottlenecks")
-
-    # Test detect_anomalies
-    anomalies = detect_anomalies(traces, std_dev_threshold=2.0)
-    if anomalies:
-        assert all(a["z_score"] > 2.0 for a in anomalies)
-        print(f"[PASS] detect_anomalies — found {len(anomalies)} anomalies")
-    else:
-        print("[PASS] detect_anomalies — no anomalies (possible with random data)")
-
-    print("\nAll smoke tests passed!")
-
-
+# =============================================================================
+# Usage Example
+# =============================================================================
 if __name__ == "__main__":
-    _smoke_test()
+    traces = generate_sample_traces(10)
+    root = build_trace_tree(traces[0])
+    print(f"Root service: {root.span.service}")
+    path = find_critical_path(root)
+    print(f"Critical path: {[s.service for s in path]}")

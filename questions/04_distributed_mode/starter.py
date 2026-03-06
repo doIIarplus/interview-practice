@@ -200,94 +200,11 @@ def find_mode(cluster: Cluster) -> int:
     pass
 
 
-# ---------------------------------------------------------------------------
-# TEST HARNESS
-# ---------------------------------------------------------------------------
-
-def run_tests() -> None:
-    """Run test cases to verify the find_mode implementation."""
-
-    print("=" * 60)
-    print("Test 1: Default cluster (10 nodes, 10,000 values)")
-    print("=" * 60)
-    cluster = Cluster(num_nodes=10, total_values=10_000, seed=42)
-    expected = cluster.get_global_mode()
-
-    result = find_mode(cluster)
-    stats = cluster.stats()
-
-    print(f"  Expected mode: {expected}")
-    print(f"  Your result:   {result}")
-    print(f"  Correct:       {result == expected}")
-    print(f"  Stats:         {stats}")
-    print()
-
-    # Naive baseline: sending all raw data to node 0
-    naive_network_bytes = 10_000 * 4  # 40,000 bytes
-    naive_time = naive_network_bytes / Cluster.NETWORK_SPEED
-    print(f"  Naive approach would send {naive_network_bytes} bytes "
-          f"({naive_time:.0f}s simulated)")
-    if stats["bytes_sent_over_network"] < naive_network_bytes:
-        savings = (1 - stats["bytes_sent_over_network"] / naive_network_bytes) * 100
-        print(f"  Your approach saves {savings:.1f}% network bandwidth!")
-    print()
-
-    print("=" * 60)
-    print("Test 2: Small cluster (3 nodes, 15 values)")
-    print("=" * 60)
-    cluster2 = Cluster(num_nodes=3, total_values=15, seed=99)
-    expected2 = cluster2.get_global_mode()
-
-    result2 = find_mode(cluster2)
-    stats2 = cluster2.stats()
-
-    print(f"  Expected mode: {expected2}")
-    print(f"  Your result:   {result2}")
-    print(f"  Correct:       {result2 == expected2}")
-    print(f"  Stats:         {stats2}")
-    print()
-
-    print("=" * 60)
-    print("Test 3: Single node")
-    print("=" * 60)
-    cluster3 = Cluster(num_nodes=1, total_values=100, seed=7)
-    expected3 = cluster3.get_global_mode()
-
-    result3 = find_mode(cluster3)
-    stats3 = cluster3.stats()
-
-    print(f"  Expected mode: {expected3}")
-    print(f"  Your result:   {result3}")
-    print(f"  Correct:       {result3 == expected3}")
-    print(f"  Network bytes: {stats3['bytes_sent_over_network']} (should be 0)")
-    print()
-
-    print("=" * 60)
-    print("Test 4: All same value")
-    print("=" * 60)
-    cluster4 = Cluster(num_nodes=5, total_values=50, seed=0)
-    # Override data to be all the same value
-    for i in range(cluster4.num_nodes):
-        cluster4._node_data[i] = [42] * len(cluster4._node_data[i])
-    expected4 = 42
-
-    result4 = find_mode(cluster4)
-    print(f"  Expected mode: {expected4}")
-    print(f"  Your result:   {result4}")
-    print(f"  Correct:       {result4 == expected4}")
-    print()
-
-    # Summary
-    all_correct = (
-        result == expected
-        and result2 == expected2
-        and result3 == expected3
-        and result4 == expected4
-    )
-    print("=" * 60)
-    print(f"ALL TESTS PASSED: {all_correct}")
-    print("=" * 60)
-
-
+# =============================================================================
+# Usage Example
+# =============================================================================
 if __name__ == "__main__":
-    run_tests()
+    cluster = Cluster(num_nodes=10, total_values=10_000, seed=42)
+    result = find_mode(cluster)
+    print(f"Mode: {result}")
+    print(f"Stats: {cluster.stats()}")

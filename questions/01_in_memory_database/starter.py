@@ -195,46 +195,12 @@ class InMemoryDB:
 
 
 # =============================================================================
-# Quick Smoke Test
+# Usage Example
 # =============================================================================
 if __name__ == "__main__":
     db = InMemoryDB()
 
-    # Level 1
-    print("--- Level 1 ---")
+    # Level 1 — basic set/get/delete
     print(db.set("user1", "name", "Alice"))    # => ""
-    print(db.set("user1", "age", "30"))         # => ""
     print(db.get("user1", "name"))              # => "Alice"
-    print(db.get("user1", "email"))             # => ""
     print(db.delete("user1", "name"))           # => "true"
-    print(db.get("user1", "name"))              # => ""
-    print(db.delete("user1", "name"))           # => "false"
-
-    # Level 2
-    print("\n--- Level 2 ---")
-    db2 = InMemoryDB()
-    db2.set("user1", "name", "Alice")
-    db2.set("user1", "age", "30")
-    db2.set("user1", "address", "123 Main St")
-    print(db2.scan("user1"))                    # => "address(123 Main St), age(30), name(Alice)"
-    print(db2.scan_by_prefix("user1", "a"))     # => "address(123 Main St), age(30)"
-    print(db2.scan_by_prefix("user1", "z"))     # => ""
-
-    # Level 3
-    print("\n--- Level 3 ---")
-    db3 = InMemoryDB()
-    db3.set_at("user1", "name", "Alice", 1)
-    db3.set_at("user1", "name", "Bob", 5)
-    print(db3.get_at("user1", "name", 3))       # => "Alice"
-    print(db3.get_at("user1", "name", 5))       # => "Bob"
-    db3.set_at_with_ttl("user1", "token", "abc", 20, 10)
-    print(db3.get_at("user1", "token", 29))     # => "abc"
-    print(db3.get_at("user1", "token", 30))     # => "" (expired)
-
-    # Level 4
-    print("\n--- Level 4 ---")
-    db4 = InMemoryDB()
-    db4.set_at("user1", "name", "Alice", 1)
-    db4.set_at("user1", "name", "Bob", 5)
-    db4.set_at("user1", "name", "Charlie", 10)
-    print(db4.compact(7))                        # => "1"

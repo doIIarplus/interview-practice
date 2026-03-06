@@ -65,17 +65,8 @@ def crawl(seed_url: str) -> set[str]:
 
 
 # =============================================================================
-# Quick Smoke Test
+# Usage Example
 # =============================================================================
 if __name__ == "__main__":
     result = crawl("https://example.com/")
-    expected = {
-        "https://example.com/",
-        "https://example.com/about",
-        "https://example.com/blog",
-        "https://example.com/blog/post1",
-        "https://example.com/blog/post2",
-    }
     print(f"Crawled URLs: {result}")
-    print(f"Expected:     {expected}")
-    print(f"Match: {result == expected}")

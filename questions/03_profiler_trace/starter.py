@@ -41,76 +41,14 @@ def samples_to_trace(
 
 
 # =============================================================================
-# Quick Smoke Tests
+# Usage Example
 # =============================================================================
 if __name__ == "__main__":
-    # Example 1: Basic transitions
-    print("--- Example 1: Basic Transitions ---")
-    samples1 = [
+    samples = [
         ["main", "foo", "bar"],
         ["main", "foo"],
         ["main", "baz"],
     ]
-    result1 = samples_to_trace(samples1)
-    expected1 = [
-        ("start", "main", 0),
-        ("start", "foo", 0),
-        ("start", "bar", 0),
-        ("end", "bar", 1),
-        ("end", "foo", 2),
-        ("start", "baz", 2),
-        ("end", "baz", 3),
-        ("end", "main", 3),
-    ]
-    for event in result1 or []:
+    result = samples_to_trace(samples)
+    for event in result or []:
         print(event)
-    print(f"Match: {result1 == expected1}\n")
-
-    # Example 2: Identical consecutive samples
-    print("--- Example 2: Identical Consecutive ---")
-    samples2 = [
-        ["main", "foo"],
-        ["main", "foo"],
-        ["main", "bar"],
-    ]
-    result2 = samples_to_trace(samples2)
-    expected2 = [
-        ("start", "main", 0),
-        ("start", "foo", 0),
-        ("end", "foo", 2),
-        ("start", "bar", 2),
-        ("end", "bar", 3),
-        ("end", "main", 3),
-    ]
-    for event in result2 or []:
-        print(event)
-    print(f"Match: {result2 == expected2}\n")
-
-    # Example 3: Recursion
-    print("--- Example 3: Recursion ---")
-    samples3 = [
-        ["main", "factorial", "factorial", "factorial"],
-        ["main", "factorial", "factorial"],
-        ["main", "factorial"],
-        ["main"],
-    ]
-    result3 = samples_to_trace(samples3)
-    expected3 = [
-        ("start", "main", 0),
-        ("start", "factorial", 0),
-        ("start", "factorial", 0),
-        ("start", "factorial", 0),
-        ("end", "factorial", 1),
-        ("end", "factorial", 2),
-        ("end", "factorial", 3),
-        ("end", "main", 4),
-    ]
-    for event in result3 or []:
-        print(event)
-    print(f"Match: {result3 == expected3}\n")
-
-    # Example 4: Edge cases
-    print("--- Example 4: Edge Cases ---")
-    print(f"Empty:  {samples_to_trace([])}")                     # => []
-    print(f"Single: {samples_to_trace([['main']])}")             # => [("start","main",0), ("end","main",1)]
-    print(f"EmptyStack: {samples_to_trace([[]])}")               # => []
